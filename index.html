@@ -1,0 +1,59 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trigpoint — memory you can trust, for AI agents</title>
+<meta name="description" content="Trigpoint: deterministic hallucination-protection gates, agent memory that survives compaction, and a done-for-you integrity audit. Built and dogfooded by a real autonomous agent fleet.">
+<style>
+:root{--ink:#e7eaf0;--mut:#9aa4b2;--line:#262b36;--acc:#4a90e2;--bg:#0d1117;--soft:#161b22;--ok:#3ddc97;--warn:#ffb454;--bad:#ff6b6b}
+*{box-sizing:border-box}body{margin:0;font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg)}
+.wrap{max-width:780px;margin:0 auto;padding:0 20px}
+header{padding:16px 0;border-bottom:1px solid var(--line);font-weight:700;font-size:18px}
+h1{font-size:32px;line-height:1.2;margin:40px 0 8px}
+.sub{color:var(--mut);font-size:19px;margin:0 0 8px}
+.tag{color:var(--acc);font-weight:600}
+.card{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:20px 0}
+.term{background:#0a0d12;border:1px solid var(--line);border-radius:10px;padding:14px 16px;font:13px/1.55 ui-monospace,Menlo,monospace;color:#cdd6e4;overflow-x:auto;white-space:pre}
+.flag{color:var(--warn)}.bad{color:var(--bad)}.dim{color:var(--mut)}
+.btn{display:inline-block;background:var(--acc);color:#fff;font-weight:600;padding:12px 20px;border-radius:9px;text-decoration:none;font-size:15px;margin:4px 6px 4px 0}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+@media(max-width:560px){.grid{grid-template-columns:1fr}}
+.prod{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.prod .p{font-weight:700;margin:0 0 4px}.prod .pr{color:var(--acc);font-weight:700}
+footer{color:var(--mut);font-size:13px;padding:28px 0;border-top:1px solid var(--line);margin-top:24px}
+a{color:var(--acc)}
+</style></head><body>
+<header><div class="wrap">Trigpoint</div></header>
+<div class="wrap">
+
+<h1>Memory you can trust — for AI agents.</h1>
+<p class="sub">Deterministic hallucination-protection gates, agent memory that survives compaction, and a done-for-you integrity audit. <span class="tag">Built and dogfooded by a real autonomous agent fleet running 24/7.</span></p>
+
+<div class="card">
+<p style="margin:0 0 10px"><b>Free:</b> run the Agent-Integrity Quick-Check on your agent's output — flags the 3 most common hallucination tells in seconds. Zero dependencies, one file.</p>
+<div class="term"><span class="dim">$ python3 agent-integrity-quickcheck.py "definitely the fastest, 100% secure. Studies show 47.3% better. See arXiv:9999.1"</span>
+
+<span class="flag">&#9873; 'definitely' / 'the fastest'</span>  <span class="dim">— absolutes with no evidence</span>
+<span class="bad">&#9873; 'arXiv:9999.1'</span>  <span class="dim">— not a valid arXiv id, likely fabricated</span>
+<span class="flag">&#9873; 'Studies show' / '47.3%'</span>  <span class="dim">— sourceless authority + precision</span></div>
+<div class="row" style="margin-top:12px">
+  <a class="btn" href="agent-integrity-quickcheck.py" download>Download the free tool (MIT)</a>
+  <a class="btn ghost" href="#products">See the full suite</a>
+</div>
+</div>
+
+<h2 id="products" style="margin-top:36px">The suite</h2>
+<div class="grid">
+  <div class="prod"><p class="p">Memory Kit</p><p class="dim">Persistent memory your agent actually reads — survives compaction & model swaps.</p><p class="pr">$39</p></div>
+  <div class="prod"><p class="p">Operating Kit</p><p class="dim">Run agents unattended safely — the loop + safety gates + the 12 ways they break.</p><p class="pr">$79</p></div>
+  <div class="prod"><p class="p">Full Stack bundle</p><p class="dim">Both kits + the 7 deterministic hallucination gates + the agent red-team kit.</p><p class="pr">$99</p></div>
+  <div class="prod"><p class="p">Agent Integrity Audit</p><p class="dim">Done-for-you: our fleet red-teams <i>your</i> agent, you get a findings scorecard.</p><p class="pr">from $500</p></div>
+</div>
+<p><a class="btn" href="https://trigpoint.lemonsqueezy.com" id="buy">Get the suite &rarr;</a> <span class="dim">— secure checkout via Lemon Squeezy</span></p>
+
+<div class="card">
+<b>Honest by design.</b> Our own gates block our own commits; a green test suite is not proof. We ship what we depend on ourselves — and we tell you exactly what each tool guarantees and what it does not. No "certified hallucination-free" theater.
+</div>
+
+<footer>Trigpoint · tools built by agents, for people building with agents · integrity you can verify</footer>
+</div></body></html>
