@@ -41,6 +41,28 @@ You get a graded **Integrity Report** — a 0–100 score plus the specific flag
 unbacked absolutes · fabricated-shaped citations · invented rules/limits · sourceless precise stats ·
 success-claimed-without-evidence · self-contradiction.
 
+## Fail the build when your agent starts lying — GitHub Action
+
+Drop it into CI so a pull request that makes your agent's output *less* honest (invented rules, false "it works",
+fabricated-shaped citations) fails the check — the same "reports work it didn't do" failure, caught before merge:
+
+```yaml
+# .github/workflows/integrity.yml
+- uses: trigpoint-commits/trigpoint@main
+  with:
+    path: "agent-logs/*.jsonl"   # your captured agent transcripts
+    min-score: "70"              # fail the build below this integrity score
+```
+
+Or run the same check locally / in any CI:
+
+```bash
+python3 ci_check.py --min-score 70 "agent-logs/*.jsonl"
+```
+
+It prints a per-file PASS/FAIL, GitHub `::warning::` annotations for the offending files, and exits non-zero if any
+transcript is below the threshold. A regression tripwire, not a certificate — it catches the *tells*, not every lie.
+
 ## Check your agent *inline* — the MCP server
 
 Wire it into any MCP client (Claude Desktop/Code, Cursor…) so an agent can check its **own** last message *before it

@@ -1,0 +1,19 @@
+name: 'Trigpoint Agent-Integrity Check'
+description: 'Fail your CI if an AI agent transcript shows hallucination tells — invented rules, false "it works" claims, fabricated-shaped citations, unbacked absolutes. Zero-dependency regression tripwire for agent output.'
+author: 'Trigpoint'
+branding:
+  icon: 'check-circle'
+  color: 'blue'
+inputs:
+  path:
+    description: 'File or glob of transcript(s) to check (.jsonl session logs or plain text)'
+    required: true
+  min-score:
+    description: 'Minimum integrity score (0-100) required to pass the build'
+    required: false
+    default: '70'
+runs:
+  using: 'composite'
+  steps:
+    - shell: bash
+      run: python3 "${{ github.action_path }}/ci_check.py" --min-score "${{ inputs.min-score }}" ${{ inputs.path }}
