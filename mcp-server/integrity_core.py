@@ -11,8 +11,25 @@ total_weight = sum of CATS[cat][weight] over every hit. If the CLI changes its f
 """
 import importlib.util, os
 
-_CHECKER_PATH = os.path.normpath(os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "..", "free-quickcheck", "agent-integrity-quickcheck.py"))
+_HERE = os.path.dirname(os.path.abspath(__file__))
+# Resolve the single-file checker across layouts: dev tree (../free-quickcheck/), published repo (repo root = ../),
+# or co-located (same dir). First existing wins so the MCP server works whether cloned from the repo or run in-tree.
+_CANDIDATES = [
+    os.path.join(_HERE, "..", "free-quickcheck", "agent-integrity-quickcheck.py"),  # dev tree
+    os.path.join(_HERE, "..", "agent-integrity-quickcheck.py"),                     # published repo root
+    os.path.join(_HERE, "agent-integrity-quickcheck.py"),                           # co-located
+]
+
+def _resolve_checker():
+    for p in _CANDIDATES:
+        p = os.path.normpath(p)
+        if os.path.isfile(p):
+            return p
+    raise FileNotFoundError(
+        "agent-integrity-quickcheck.py not found next to the MCP server. Looked in: "
+        + ", ".join(os.path.normpath(p) for p in _CANDIDATES))
+
+_CHECKER_PATH = _resolve_checker()
 
 def _load_checker():
     spec = importlib.util.spec_from_file_location("aiqc", _CHECKER_PATH)
