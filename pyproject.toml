@@ -1,0 +1,34 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "trigpoint-agent-integrity"
+version = "0.1.0"
+description = "Catch the tells that an AI agent is making things up — no source docs, no judge model, no API key. A zero-dependency transcript linter for hallucination tells."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+keywords = ["llm", "agent", "hallucination", "integrity", "eval", "ai-safety", "mcp"]
+authors = [{ name = "Trigpoint" }]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Topic :: Software Development :: Quality Assurance",
+]
+dependencies = []
+
+[project.optional-dependencies]
+mcp = ["mcp>=2.2.0"]
+
+[project.scripts]
+trigpoint = "trigpoint_quickcheck:main"
+
+[project.urls]
+Homepage = "https://github.com/trigpoint-commits/trigpoint"
+
+[tool.hatch.build.targets.wheel]
+include = ["trigpoint_quickcheck.py"]
+
+[tool.hatch.build.targets.sdist]
+include = ["trigpoint_quickcheck.py", "README.md", "LICENSE"]

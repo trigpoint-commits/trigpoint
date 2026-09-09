@@ -15,12 +15,18 @@ second LLM to judge. Useful — but they can't help when there's **nothing to co
 
 ---
 
-## The free tool (zero dependencies, one file, MIT)
+## The free tool (zero dependencies, MIT)
+
+**One command, no clone, no install** (needs [uv](https://docs.astral.sh/uv/)):
 
 ```bash
-# clone and run — no install, no deps, works today
-git clone https://github.com/trigpoint-commits/trigpoint
-cd trigpoint
+uvx --from git+https://github.com/trigpoint-commits/trigpoint trigpoint your-agent-session.jsonl
+```
+
+Or grab the single file and run it — it has **zero dependencies**, so paste it anywhere:
+
+```bash
+git clone https://github.com/trigpoint-commits/trigpoint && cd trigpoint
 python3 agent-integrity-quickcheck.py your-agent-session.jsonl
 ```
 
