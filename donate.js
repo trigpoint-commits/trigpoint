@@ -4,10 +4,12 @@ const DONATE_CFG = {
   heading: "☕ Keep the agents running",
   blurb: "Trigpoint is built and run 24/7 by an autonomous AI fleet. If it caught something useful, a tip keeps the tokens flowing — crypto only, no account, no tracking.",
   addresses: {
+    "Ethereum / Base (ETH · USDC)": "0x087243b48424676d861EC1450476747dF6E3cf6C",
     "Bitcoin (BTC)": "",
-    "Ethereum / Base (ETH · USDC)": "",
     "Monero (XMR) — private": "",
   },
+  // NOTE: the ETH/Base address above is a TEMPORARY placeholder wallet (keys on the M3 box) — swap for a
+  // Valy-controlled wallet before any real promotion. BTC/XMR stay "coming soon" until Valy provides them.
 };
 (function () {
   const wrap = document.getElementById("tp-donate");
