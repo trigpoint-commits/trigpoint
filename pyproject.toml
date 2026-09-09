@@ -23,12 +23,13 @@ mcp = ["mcp>=2.2.0"]
 
 [project.scripts]
 trigpoint = "trigpoint_quickcheck:main"
+trigpoint-mcp = "trigpoint_mcp:main"
 
 [project.urls]
 Homepage = "https://github.com/trigpoint-commits/trigpoint"
 
 [tool.hatch.build.targets.wheel]
-include = ["trigpoint_quickcheck.py"]
+include = ["trigpoint_quickcheck.py", "trigpoint_mcp.py", "ci_check.py"]
 
 [tool.hatch.build.targets.sdist]
 include = ["trigpoint_quickcheck.py", "README.md", "LICENSE"]

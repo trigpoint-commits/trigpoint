@@ -68,11 +68,17 @@ transcript is below the threshold. A regression tripwire, not a certificate — 
 Wire it into any MCP client (Claude Desktop/Code, Cursor…) so an agent can check its **own** last message *before it
 sends it* — catching the tell at the source, not in the wreckage:
 
-```bash
-pip install mcp
-# add to your MCP client config:
-#   "trigpoint-agent-integrity": { "command": "python", "args": ["/path/to/mcp-server/server.py"] }
+One command (no clone):
+
+```jsonc
+// in your MCP client config (Claude Desktop / Cursor / …)
+"trigpoint-agent-integrity": {
+  "command": "uvx",
+  "args": ["--from", "trigpoint-agent-integrity[mcp] @ git+https://github.com/trigpoint-commits/trigpoint", "trigpoint-mcp"]
+}
 ```
+
+Or from a clone: `pip install "mcp"` then point the config's `command` at `mcp-server/server.py`.
 
 Tool: `check_agent_integrity(text)` → structured `{score, findings, worst_offender, disclaimer}`. Details in
 [`mcp-server/README.md`](mcp-server/README.md).
