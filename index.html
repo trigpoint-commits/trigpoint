@@ -1,196 +1,174 @@
 <!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Trigpoint — catch the tells that your AI agent is making things up</title>
-<meta name="description" content="A zero-dependency check for AI-agent hallucination tells — no source docs, no judge model, no API key. Free CLI + MCP server + CI action. Built and dogfooded by a real autonomous agent fleet.">
+<title>Trigpoint — is your AI agent making things up?</title>
+<meta name="description" content="A blunt, zero-dependency check for AI-agent hallucination tells — invented rules, fake 'tests pass', citations that aren't real. No source docs, no judge model, no API key. Free CLI + MCP server + CI action.">
 <style>
 :root{
-  --bg:#0a0d13; --bg2:#0d1117; --surf:#141a24; --surf2:#171e29; --line:#232c3a; --line2:#2c3644;
-  --ink:#eef2f8; --mut:#9fb0c3; --dim:#6b7a8d;
-  --acc:#5b9dff; --acc2:#7c5cff; --cyan:#33d6c8; --ok:#3ddc97; --warn:#ffb454; --bad:#ff6b6b;
+  --bg:#0b0b0c; --ink:#f4f4f2; --mut:#8a8a86; --line:#242422; --line2:#33332f; --acc:#d7ff3f; --red:#ff5c5c;
+  /* fallbacks consumed by donate.js */ --soft:#141414; --surf:#141414;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;color:var(--ink);background:var(--bg);
-  font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
-  -webkit-font-smoothing:antialiased}
-.wrap{max-width:960px;margin:0 auto;padding:0 24px}
-a{color:var(--acc);text-decoration:none}a:hover{text-decoration:underline}
-code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.55 "Helvetica Neue",Arial,-apple-system,BlinkMacSystemFont,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1000px;margin:0 auto;padding:0 28px}
+a{color:var(--ink)}
+.mono{font-family:ui-monospace,SFMono-Regular,"JetBrains Mono",Menlo,Consolas,monospace}
 
 /* header */
-header{position:sticky;top:0;z-index:20;backdrop-filter:blur(10px);
-  background:rgba(10,13,19,.72);border-bottom:1px solid var(--line)}
-.nav{display:flex;align-items:center;justify-content:space-between;height:60px}
-.brand{font-weight:800;font-size:19px;letter-spacing:-.01em;display:flex;align-items:center;gap:9px}
-.dot{width:11px;height:11px;border-radius:3px;background:linear-gradient(135deg,var(--acc),var(--acc2))}
-.nav .links a{color:var(--mut);font-size:14.5px;margin-left:22px;font-weight:500}
-.nav .links a:hover{color:var(--ink);text-decoration:none}
-@media(max-width:640px){.nav .links a:not(.ghostbtn){display:none}}
-.ghostbtn{border:1px solid var(--line2);border-radius:8px;padding:7px 13px !important;color:var(--ink) !important}
+header{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:2px solid var(--ink)}
+.nav{display:flex;justify-content:space-between;align-items:center;height:58px;
+  text-transform:uppercase;letter-spacing:.09em;font-size:12px;font-weight:800}
+.nav .acc{color:var(--acc)}
+.nav a{margin-left:20px;color:var(--ink)}
+.nav a:hover{color:var(--acc);text-decoration:none}
+@media(max-width:640px){.nav a.hide{display:none}}
 
 /* hero */
-.hero{position:relative;padding:78px 0 34px;overflow:hidden}
-.hero::before{content:"";position:absolute;inset:-40% 0 auto -10%;height:520px;z-index:-1;
-  background:radial-gradient(60% 60% at 20% 0,rgba(124,92,255,.20),transparent 70%),
-             radial-gradient(50% 50% at 85% 10%,rgba(51,214,200,.14),transparent 70%);filter:blur(6px)}
-.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--cyan);font-weight:600;
-  border:1px solid var(--line2);background:var(--surf);border-radius:999px;padding:5px 13px;margin-bottom:20px}
-.pulse{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 rgba(61,220,151,.6);animation:p 2s infinite}
-@keyframes p{70%{box-shadow:0 0 0 7px rgba(61,220,151,0)}100%{box-shadow:0 0 0 0 rgba(61,220,151,0)}}
-h1{font-size:clamp(34px,5.4vw,54px);line-height:1.05;letter-spacing:-.025em;margin:0 0 18px;font-weight:800}
-h1 .g{background:linear-gradient(100deg,var(--acc),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
-.lead{color:var(--mut);font-size:clamp(17px,2.2vw,20px);max-width:620px;margin:0 0 14px}
-.lead b{color:var(--ink);font-weight:600}
-.ctas{display:flex;gap:12px;flex-wrap:wrap;margin:26px 0 8px}
-.btn{display:inline-flex;align-items:center;gap:8px;font-weight:650;font-size:15px;padding:13px 22px;border-radius:11px;
-  border:1px solid transparent;cursor:pointer;transition:transform .08s ease,box-shadow .2s ease}
-.btn:hover{text-decoration:none;transform:translateY(-1px)}
-.btn.primary{background:linear-gradient(100deg,var(--acc),var(--acc2));color:#fff;box-shadow:0 8px 30px -8px rgba(91,157,255,.6)}
-.btn.ghost{background:var(--surf);border-color:var(--line2);color:var(--ink)}
-.trust{color:var(--dim);font-size:13.5px;margin-top:16px}
+.hero{padding:60px 0 34px;border-bottom:2px solid var(--line)}
+.tag{display:inline-block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;
+  border:1px solid var(--acc);color:var(--acc);padding:6px 12px;margin-bottom:28px}
+h1{font-size:clamp(44px,9vw,92px);line-height:.92;letter-spacing:-.035em;margin:0 0 26px;font-weight:800;text-transform:uppercase}
+h1 em{font-style:normal;color:var(--acc)}
+.lead{font-size:clamp(18px,2.4vw,22px);max-width:640px;color:var(--mut);margin:0 0 6px;line-height:1.4}
+.lead b{color:var(--ink);font-weight:700}
+.spec{margin:22px 0 0;font-size:13px;color:var(--acc);letter-spacing:.04em;font-weight:600}
+.cmd{font-size:14px;background:#000;border:2px solid var(--line2);padding:14px 16px;margin:24px 0 0;overflow-x:auto;white-space:pre;color:var(--acc);position:relative}
+.cmd .d{color:var(--mut)}
+.copy{position:absolute;top:8px;right:8px;background:#000;border:1px solid var(--line2);color:var(--ink);
+  text-transform:uppercase;font:700 11px/1 inherit;letter-spacing:.08em;padding:7px 11px;cursor:pointer}
+.copy:hover{color:var(--acc);border-color:var(--acc)}
+.report{font-size:13.5px;line-height:1.85;background:#000;border:2px solid var(--line2);padding:18px;white-space:pre;overflow-x:auto;margin:24px 0 0}
+.report .r{color:var(--red)}.report .y{color:var(--acc)}.report .d{color:var(--mut)}.report .w{color:#fff}
+.cta{display:flex;margin:32px 0 4px;flex-wrap:wrap}
+.b{font-weight:800;text-transform:uppercase;letter-spacing:.05em;font-size:14px;padding:16px 26px;
+  border:2px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer;text-decoration:none;display:inline-block}
+.b:hover{text-decoration:none}
+.b.on{background:var(--acc);color:#000;border-color:var(--acc)}
+.b.on:hover{background:#c8f02a}
+.b + .b{border-left:0}
+@media(max-width:520px){.b + .b{border-left:2px solid var(--ink)}}
 
-/* terminal */
-.term{margin:30px 0 8px;background:#080b11;border:1px solid var(--line);border-radius:14px;overflow:hidden;
-  box-shadow:0 24px 60px -24px rgba(0,0,0,.7)}
-.term .bar{display:flex;align-items:center;gap:7px;padding:11px 14px;background:#0d121a;border-bottom:1px solid var(--line)}
-.term .bar i{width:11px;height:11px;border-radius:50%;display:inline-block}
-.b1{background:#ff5f57}.b2{background:#febc2e}.b3{background:#28c840}
-.term .bar span{margin-left:8px;color:var(--dim);font:12px/1 ui-monospace,monospace}
-.term pre{margin:0;padding:16px 18px;font:13px/1.7 ui-monospace,Menlo,monospace;color:#cdd6e4;overflow-x:auto;white-space:pre}
-.c-dim{color:var(--dim)}.c-flag{color:var(--warn)}.c-bad{color:var(--bad)}.c-ok{color:var(--ok)}.c-acc{color:var(--acc)}.c-w{color:#fff;font-weight:600}
-
-/* sections */
-section{padding:48px 0}
-.kicker{color:var(--cyan);font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase;margin:0 0 8px}
-h2{font-size:clamp(24px,3.4vw,32px);letter-spacing:-.02em;margin:0 0 10px;font-weight:750}
-.sub{color:var(--mut);font-size:17px;max-width:640px;margin:0 0 26px}
-
-/* feature row */
-.feats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-@media(max-width:720px){.feats{grid-template-columns:1fr}}
-.feat{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:22px}
-.feat .ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-size:19px;
-  background:linear-gradient(135deg,rgba(91,157,255,.18),rgba(124,92,255,.18));border:1px solid var(--line2);margin-bottom:13px}
-.feat h3{margin:0 0 6px;font-size:16.5px}
-.feat p{margin:0;color:var(--mut);font-size:14.5px}
+/* section head */
+section{padding:52px 0;border-bottom:2px solid var(--line)}
+.kick{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:var(--acc);margin:0 0 12px}
+h2{font-size:clamp(26px,4vw,40px);text-transform:uppercase;letter-spacing:-.02em;margin:0 0 12px;font-weight:800;line-height:1}
+.sub{color:var(--mut);font-size:17px;max-width:640px;margin:0 0 4px}
 
 /* install */
-.install{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:8px 8px 8px 18px;
-  display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:space-between}
-.install code{color:var(--cyan);font-size:14.5px}
-.copy{background:var(--surf2);border:1px solid var(--line2);color:var(--ink);border-radius:9px;padding:9px 15px;cursor:pointer;font-weight:600;font-size:13.5px}
-.install .alt{color:var(--dim);font-size:13px;margin-top:12px;width:100%}
+.alt{color:var(--mut);font-size:13.5px;margin-top:16px}.alt a{color:var(--acc)}
+
+/* feature grid */
+.grid4{display:grid;grid-template-columns:1fr 1fr;border-top:2px solid var(--line);margin-top:8px}
+.cell{padding:26px 26px 26px 0;border-bottom:2px solid var(--line)}
+.cell:nth-child(odd){border-right:2px solid var(--line)}
+.cell:nth-child(even){padding-left:28px}
+@media(max-width:640px){.grid4{grid-template-columns:1fr}.cell,.cell:nth-child(odd){border-right:0;padding:22px 0}}
+.cell .n{color:var(--acc);font-size:13px;font-weight:800}
+.cell h3{margin:9px 0 7px;font-size:19px;text-transform:uppercase;letter-spacing:-.01em}
+.cell p{margin:0;color:var(--mut);font-size:15px}
 
 /* products */
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
-@media(max-width:640px){.grid{grid-template-columns:1fr}}
-.prod{position:relative;background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:22px;transition:border-color .2s,transform .08s}
-.prod:hover{border-color:var(--line2);transform:translateY(-2px)}
-.prod.feature{border-color:rgba(124,92,255,.45);background:linear-gradient(180deg,rgba(124,92,255,.07),var(--surf))}
-.prod .p{font-weight:700;font-size:17px;margin:0 0 6px;display:flex;align-items:center;gap:9px}
-.prod .d{color:var(--mut);font-size:14.5px;margin:0 0 16px}
-.prod .pr{font-weight:800;font-size:22px;letter-spacing:-.02em}
-.prod .pr small{color:var(--dim);font-weight:600;font-size:13px}
-.badge{font-size:11px;font-weight:700;color:var(--acc2);background:rgba(124,92,255,.14);border:1px solid rgba(124,92,255,.3);border-radius:999px;padding:2px 9px}
-.buyrow{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:22px}
+.prods{display:grid;grid-template-columns:1fr 1fr;border:2px solid var(--line)}
+.prod{padding:24px;border-bottom:2px solid var(--line)}
+.prod:nth-child(odd){border-right:2px solid var(--line)}
+.prod:nth-child(3),.prod:nth-child(4){border-bottom:0}
+.prod.feat{background:#101006}
+@media(max-width:640px){.prods{grid-template-columns:1fr}.prod{border-right:0 !important}.prod:nth-child(3){border-bottom:2px solid var(--line)}}
+.prod .p{font-weight:800;text-transform:uppercase;font-size:16px;letter-spacing:-.01em;margin:0 0 8px;display:flex;gap:10px;align-items:baseline}
+.prod .bd{font-size:11px;font-weight:800;color:#000;background:var(--acc);padding:2px 7px;letter-spacing:.04em}
+.prod .d{color:var(--mut);font-size:14.5px;margin:0 0 16px}.prod .d a{color:var(--acc)}
+.prod .pr{font-weight:800;font-size:24px;letter-spacing:-.02em}.prod .pr small{color:var(--mut);font-size:13px;font-weight:600}
+.buyrow{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:24px}
+.buyrow .n{color:var(--mut);font-size:13.5px}
 
-/* honest callout */
-.honest{background:linear-gradient(180deg,var(--surf2),var(--surf));border:1px solid var(--line);border-left:3px solid var(--cyan);border-radius:12px;padding:22px 24px}
-.honest b{color:var(--ink)}
-.honest p{margin:0;color:var(--mut)}
+/* honest */
+.honest{border-left:3px solid var(--acc);padding:6px 0 6px 24px;max-width:720px}
+.honest b{color:var(--ink)}.honest p{margin:0;color:var(--mut);font-size:15.5px;line-height:1.6}
 
-footer{border-top:1px solid var(--line);padding:30px 0 44px;color:var(--dim);font-size:13.5px}
+/* donate override to square it off */
+#tp-donate .tpd-card{border-radius:0 !important;border:2px solid var(--line) !important}
+#tp-donate .tpd-addr{border-radius:0 !important}#tp-donate .tpd-copy{border-radius:0 !important}
+
+footer{padding:30px 0 46px;color:var(--mut);font-size:13px;text-transform:uppercase;letter-spacing:.06em}
 footer .fl{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
-hr.sep{border:0;border-top:1px solid var(--line);margin:0}
+footer a{color:var(--acc)}
 </style></head><body>
 
 <header><div class="wrap nav">
-  <div class="brand"><span class="dot"></span> Trigpoint</div>
-  <div class="links">
-    <a href="#suite">Suite</a>
-    <a href="sample-audit.html">Sample audit</a>
-    <a href="https://github.com/trigpoint-commits/trigpoint">GitHub</a>
-    <a class="ghostbtn" href="#start">Run the free check</a>
+  <div>TRIGPOINT<span class="acc">.</span></div>
+  <div>
+    <a class="hide" href="#suite">Suite</a>
+    <a class="hide" href="sample-audit.html">Sample</a>
+    <a href="https://github.com/trigpoint-commits/trigpoint">GitHub↗</a>
+    <a href="#start" class="acc">Run it</a>
   </div>
 </div></header>
 
 <div class="hero"><div class="wrap">
-  <span class="eyebrow"><span class="pulse"></span> Built &amp; dogfooded by a 24/7 autonomous agent fleet</span>
-  <h1>Catch the tells that your AI agent is <span class="g">making things up.</span></h1>
-  <p class="lead">Point it at a transcript and it grades the <b>shape of fabrication</b> — invented rules, "tests pass" with nothing run, citations that aren't real, confident absolutes it can't back. <b>No source docs, no judge model, no API key.</b></p>
-  <div class="ctas">
-    <a class="btn primary" href="#start">▶ Run the free check</a>
-    <a class="btn ghost" href="sample-audit.html">See a real audit →</a>
-  </div>
-  <p class="trust">Free · MIT · zero dependencies · one file — or one <code>uvx</code> command</p>
-
-  <div class="term">
-    <div class="bar"><i class="b1"></i><i class="b2"></i><i class="b3"></i><span>agent-integrity-quickcheck</span></div>
-<pre><span class="c-dim">$ trigpoint session.jsonl</span>
-
-  <span class="c-w">Integrity score:</span> <span class="c-bad">45</span> / 100     <span class="c-dim">(15 flags across 6 messages)</span>
-  ───────────────────────────────────────────────
-  <span class="c-bad">⚑ 3</span>  invented rule / limit      <span class="c-dim">"the retry cap is 15 minutes…"</span>
-  <span class="c-bad">⚑ 2</span>  fabricated citation        <span class="c-dim">"see arXiv:9912.44"  (not a valid id)</span>
-  <span class="c-flag">⚑ 7</span>  unbacked absolute          <span class="c-dim">"100% certain … guaranteed"</span>
-  <span class="c-flag">⚑ 2</span>  sourceless precision       <span class="c-dim">"47.3% of latency…"</span>
-  <span class="c-flag">⚑ 1</span>  success, no evidence       <span class="c-dim">"tests pass, deployed"</span>
-  ───────────────────────────────────────────────
-  <span class="c-dim">Heuristic first-pass, not a verdict. A high score is not a certificate.</span></pre>
-  </div>
+  <span class="tag">Built by a 24/7 autonomous agent fleet</span>
+  <h1>Your agent is<br><em>making things up.</em></h1>
+  <p class="lead">It fabricates rules, fakes <b>"tests pass"</b>, and cites sources that don't exist — <b>confidently</b>. You won't notice until it costs you. Point Trigpoint at a transcript and it grades the shape of the fabrication.</p>
+  <p class="spec">NO SOURCE DOCS &nbsp;—&nbsp; NO JUDGE MODEL &nbsp;—&nbsp; NO API KEY</p>
+  <div class="cmd" id="cmdbox"><button class="copy" id="copy">Copy</button><span class="d"># run it on your own transcript — nothing is uploaded</span>
+<span id="cmd">uvx --from git+https://github.com/trigpoint-commits/trigpoint trigpoint session.jsonl</span></div>
+  <div class="report"><span class="w">INTEGRITY</span>  <span class="r">45</span>/100    <span class="d">15 FLAGS ACROSS 6 MESSAGES</span>
+<span class="d">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+<span class="r">⚑ 3</span>  INVENTED RULE          <span class="d">"the retry cap is 15 min…"</span>
+<span class="r">⚑ 2</span>  FABRICATED CITATION    <span class="d">"see arXiv:9912.44"  (invalid)</span>
+<span class="y">⚑ 7</span>  UNBACKED ABSOLUTE      <span class="d">"100% certain, guaranteed"</span>
+<span class="y">⚑ 1</span>  SUCCESS, NO EVIDENCE   <span class="d">"tests pass, deployed"</span>
+<span class="d">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+first-pass, not a verdict. a high score is not a certificate.</span></div>
+  <div class="cta"><a class="b on" href="#start">Run the free check</a><a class="b" href="sample-audit.html">See a real audit</a></div>
 </div></div>
 
-<div class="wrap"><hr class="sep"></div>
-
 <section id="start"><div class="wrap">
-  <p class="kicker">Start free — 10 seconds</p>
+  <p class="kick">Start free — 10 seconds</p>
   <h2>One command. No account, no key.</h2>
-  <p class="sub">Run it on your own agent's transcript (a <code>.jsonl</code> session log or plain text). It stays local — nothing is uploaded, nothing is executed.</p>
-  <div class="install">
-    <code id="cmd">uvx --from git+https://github.com/trigpoint-commits/trigpoint trigpoint session.jsonl</code>
-    <button class="copy" id="copybtn">Copy</button>
-    <div class="alt">Prefer one file? <a href="agent-integrity-quickcheck.py" download>Download the zero-dependency script</a> · or self-check inline via the <a href="https://github.com/trigpoint-commits/trigpoint#readme">MCP server</a> &amp; <a href="https://github.com/trigpoint-commits/trigpoint#readme">CI action</a>.</div>
-  </div>
+  <p class="sub">Run it on your own agent's transcript (a <span class="mono">.jsonl</span> session log or plain text). It stays local — nothing uploaded, nothing executed.</p>
+  <p class="alt mono">Prefer one file? <a href="agent-integrity-quickcheck.py" download>Download the zero-dependency script</a> &nbsp;·&nbsp; self-check inline via the <a href="https://github.com/trigpoint-commits/trigpoint#readme">MCP server</a> &nbsp;·&nbsp; fail your CI on a regression with the <a href="https://github.com/trigpoint-commits/trigpoint#readme">GitHub Action</a>.</p>
 </div></section>
 
-<section style="padding-top:8px"><div class="wrap">
-  <div class="feats">
-    <div class="feat"><div class="ic">🚫</div><h3>No ground truth needed</h3><p>Groundedness scorers need the source doc + a judge LLM. Trigpoint reads the transcript alone.</p></div>
-    <div class="feat"><div class="ic">🔍</div><h3>Catches the shape of a lie</h3><p>Invented rules, false "it works", fake-shaped citations, sourceless stats, self-contradiction.</p></div>
-    <div class="feat"><div class="ic">🧭</div><h3>Honest by design</h3><p>It flags the tells, not every lie — and says so. We never sell "certified hallucination-free."</p></div>
+<section style="border-bottom:0;padding-bottom:20px"><div class="wrap">
+  <div class="grid4">
+    <div class="cell"><span class="n">01</span><h3>No ground truth needed</h3><p>Groundedness scorers need the source doc and a judge LLM. Trigpoint reads the transcript alone — it catches the tells even when there's nothing to compare against.</p></div>
+    <div class="cell"><span class="n">02</span><h3>Catches the shape of a lie</h3><p>Invented rules, false "it works", fake-shaped citations, sourceless stats, self-contradiction. The patterns fabrication leaves behind.</p></div>
+    <div class="cell"><span class="n">03</span><h3>Honest by design</h3><p>It flags the tells, not every lie — and says so. A confident, plausible falsehood can still slip past. We never sell "certified hallucination-free."</p></div>
+    <div class="cell"><span class="n">04</span><h3>Dogfooded, for real</h3><p>Our own gates block our own commits. The whole thing came out of a fleet of agents that lied to us first — a fabricated rule, a "sent" message that reached no one.</p></div>
   </div>
 </div></section>
 
 <section id="suite"><div class="wrap">
-  <p class="kicker">The suite</p>
+  <p class="kick">The suite</p>
   <h2>From a free check to a done-for-you audit.</h2>
-  <p class="sub">The free tool is the first pass. The paid kits and the audit are the deterministic, red-team-tested depth behind it.</p>
-  <div class="grid">
+  <p class="sub" style="margin-bottom:26px">The free tool is the first pass. The kits and the audit are the deterministic, red-team-tested depth behind it.</p>
+  <div class="prods">
     <div class="prod"><p class="p">Agent Memory Kit</p><p class="d">Persistent memory your agent actually reads — survives compaction &amp; model swaps.</p><p class="pr">$39</p></div>
     <div class="prod"><p class="p">Agent Operating Kit</p><p class="d">Run agents unattended safely — the loop, the safety gates, and the 12 ways they break.</p><p class="pr">$79</p></div>
-    <div class="prod"><p class="p">Full Stack bundle <span class="badge">best value</span></p><p class="d">Both kits + the 7 deterministic hallucination gates + the agent red-team kit.</p><p class="pr">$99</p></div>
-    <div class="prod feature"><p class="p">Agent Integrity Audit</p><p class="d">Done-for-you: our fleet red-teams <i>your</i> agent and hands back a findings scorecard — every fabricated claim quoted, ranked, with a fix. <a href="sample-audit.html">See a real sample →</a></p><p class="pr">from $500</p></div>
+    <div class="prod"><p class="p">Full Stack Bundle <span class="bd">Best value</span></p><p class="d">Both kits + the 7 deterministic hallucination gates + the agent red-team kit.</p><p class="pr">$99</p></div>
+    <div class="prod feat"><p class="p">Agent Integrity Audit</p><p class="d">Done-for-you: our fleet red-teams <i>your</i> agent and hands back a findings scorecard — every fabricated claim quoted, ranked, with a fix. <a href="sample-audit.html">See a real sample →</a></p><p class="pr">from $500</p></div>
   </div>
   <div class="buyrow">
-    <a class="btn primary" href="https://trigpoint.lemonsqueezy.com">Get the suite →</a>
-    <span class="trust">Secure checkout via Lemon Squeezy · instant download</span>
+    <a class="b on" href="https://trigpoint.lemonsqueezy.com">Get the suite →</a>
+    <span class="n mono">Secure checkout via Lemon Squeezy · instant download</span>
   </div>
 </div></section>
 
-<section style="padding-top:8px"><div class="wrap">
+<section style="border-bottom:0"><div class="wrap">
   <div class="honest">
-    <p><b>Honest by design.</b> Our own gates block our own commits; a green test suite is not proof. We ship what we depend on ourselves, and we tell you exactly what each tool guarantees and what it does not. The whole thing came out of a fleet of agents that lied to us first — a fabricated rule, a "sent" message that reached no one, a verifier that passed a dead script. These are the checks that caught them.</p>
+    <p><b>Honest by design.</b> A green test suite is not proof, and a high score is not a certificate. We ship what we depend on ourselves, and we tell you exactly what each tool guarantees and what it does not. The checks on this page are the ones that caught our own agents lying — a fabricated rule, a "sent" message that reached no one, a verifier that passed a dead script.</p>
   </div>
-  <div id="tp-donate"></div><script src="donate.js"></script>
+  <div id="tp-donate" style="margin-top:34px"></div><script src="donate.js"></script>
 </div></section>
 
 <footer><div class="wrap fl">
-  <span>Trigpoint · tools built by agents, for people building with agents</span>
-  <span>integrity you can verify · <a href="https://github.com/trigpoint-commits/trigpoint">GitHub</a></span>
+  <span>Trigpoint — tools built by agents, for people building with agents</span>
+  <span>Integrity you can verify · <a href="https://github.com/trigpoint-commits/trigpoint">GitHub↗</a></span>
 </div></footer>
 
 <script>
-  const b=document.getElementById("copybtn");
-  b&&b.addEventListener("click",async()=>{try{await navigator.clipboard.writeText(document.getElementById("cmd").textContent);const t=b.textContent;b.textContent="Copied ✓";setTimeout(()=>b.textContent=t,1400);}catch(e){}});
+  const c=document.getElementById("copy");
+  c&&c.addEventListener("click",async()=>{try{await navigator.clipboard.writeText(document.getElementById("cmd").textContent);const t=c.textContent;c.textContent="Copied ✓";setTimeout(()=>c.textContent=t,1400);}catch(e){}});
 </script>
 </body></html>
