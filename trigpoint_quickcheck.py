@@ -122,6 +122,11 @@ def main():
         print("usage: python3 agent-integrity-quickcheck.py <transcript.jsonl | \"text\">  (or pipe text in)"); return 2
 
     msgs = messages_from(raw)
+    if not msgs:                      # parsed JSON but matched no assistant messages -> NOT a clean result
+        print("\nno assistant messages found to scan — is this the right transcript/format?")
+        print("(expected a .jsonl session log with assistant messages, or plain text). Nothing was scanned,")
+        print("so this is NOT a clean bill of health — a score of 0 messages means the check did not run.")
+        return 2
     counts, worst = {}, None       # worst = (weight, category, sanitized-snippet, msg#)
     total_weight = 0
     for i, msg in enumerate(msgs, 1):

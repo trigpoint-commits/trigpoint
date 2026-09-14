@@ -66,6 +66,7 @@
     if (typeof raw !== "string") raw = String(raw || "");
     if (raw.length > MAX_BYTES) raw = raw.slice(0, MAX_BYTES);
     const msgs = messagesFrom(raw);
+    if (msgs.length === 0) return { noScan: true, score: null, band: "none", messages_scanned: 0, n_findings: 0, counts: {}, worst_offender: null, findings: [], CATS };
     const counts = {}; let worst = null, total = 0; const findings = [];
     msgs.forEach((msg, i) => {
       const lns = msg.split("\n"); const iter = lns.length ? lns : [msg];

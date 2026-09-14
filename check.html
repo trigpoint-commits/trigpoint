@@ -88,6 +88,7 @@ $("run").addEventListener("click",()=>{
   if(!raw.trim()){$("in").focus();return;}
   const d=Trigpoint.analyze(raw);
   const out=$("out");out.style.display="block";
+  if(d.noScan){out.innerHTML='<div class="report"><div class="clean-msg" style="color:var(--high)">&#9888; No assistant messages found to scan.</div><div class="disc">This looks like structured data with no readable assistant turns — check it is the right transcript/format (a .jsonl session log, or plain text). Nothing was scanned, so this is NOT a clean result.</div></div>';out.scrollIntoView({behavior:"smooth",block:"nearest"});return;}
   const cls=d.band==="clean"?"clean":(d.band==="watch"?"watch":"poor");
   let rows="";
   const order=Object.keys(d.counts).sort((a,b)=>(d.counts[b]*d.CATS[b][0])-(d.counts[a]*d.CATS[a][0]));
