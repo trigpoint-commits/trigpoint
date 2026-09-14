@@ -1,0 +1,111 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trigpoint — check your agent (in your browser, nothing uploaded)</title>
+<meta name="description" content="Paste your AI agent's transcript and get an integrity score in your browser — flags invented rules, fake 'tests pass', citations that aren't real. Runs 100% client-side, nothing uploaded.">
+<style>
+:root{--bg:#0b0b0c;--ink:#f4f4f2;--mut:#8a8a86;--line:#242422;--line2:#33332f;--acc:#d7ff3f;--crit:#ff5c5c;--high:#ffb454;--warn:#e7c14a;--ok:#d7ff3f;--soft:#141414;--surf:#141414}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Helvetica Neue",Arial,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:900px;margin:0 auto;padding:0 26px}
+a{color:var(--acc)}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+header{border-bottom:2px solid var(--ink)}
+.nav{display:flex;justify-content:space-between;align-items:center;height:58px;text-transform:uppercase;letter-spacing:.09em;font-size:12px;font-weight:800}
+.nav a{margin-left:20px;color:var(--ink)}.nav a:hover{color:var(--acc);text-decoration:none}.nav .acc{color:var(--acc)}
+h1{font-size:clamp(30px,5.5vw,52px);line-height:.95;letter-spacing:-.03em;margin:44px 0 16px;font-weight:800;text-transform:uppercase}
+h1 em{font-style:normal;color:var(--acc)}
+.lead{color:var(--mut);font-size:18px;max-width:620px;margin:0 0 4px}.lead b{color:var(--ink)}
+.priv{color:var(--acc);font-size:13px;margin:14px 0 0;letter-spacing:.03em}
+textarea{width:100%;min-height:190px;margin:24px 0 0;background:#000;border:2px solid var(--line2);color:#cdd6e4;
+  font-family:ui-monospace,Menlo,monospace;font-size:13px;line-height:1.6;padding:14px 16px;resize:vertical}
+textarea:focus{outline:0;border-color:var(--acc)}
+.row{display:flex;gap:0;flex-wrap:wrap;margin:14px 0 0;align-items:center}
+.b{font-weight:800;text-transform:uppercase;letter-spacing:.05em;font-size:14px;padding:15px 26px;border:2px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer}
+.b.on{background:var(--acc);color:#000;border-color:var(--acc)}.b.on:hover{background:#c8f02a}
+.b.ghost{border-left:0}@media(max-width:520px){.b.ghost{border-left:2px solid var(--ink);margin-top:-2px}}
+.hint{color:var(--mut);font-size:13px;margin-left:16px}
+/* report */
+#out{margin:30px 0 0;display:none}
+.report{background:#000;border:2px solid var(--line2);padding:20px}
+.score{font-size:60px;font-weight:800;letter-spacing:-.03em;line-height:1}
+.score.clean{color:var(--ok)}.score.watch{color:var(--high)}.score.poor{color:var(--crit)}
+.score small{font-size:20px;color:var(--mut);font-weight:700}
+.meta{color:var(--mut);font-size:13px;text-transform:uppercase;letter-spacing:.06em;margin:8px 0 18px}
+.flag{display:flex;gap:12px;align-items:baseline;font-family:ui-monospace,monospace;font-size:13.5px;margin:7px 0;border-top:1px solid var(--line);padding-top:7px}
+.flag .n{font-weight:800;min-width:34px}.flag .cat{text-transform:uppercase;letter-spacing:.02em}
+.crit{color:var(--crit)}.high{color:var(--high)}.warn{color:var(--warn)}
+.worst{margin:18px 0 0;font-family:ui-monospace,monospace;font-size:13px;color:#cdd6e4}
+.worst q{display:block;border-left:3px solid var(--crit);padding:6px 0 6px 14px;margin:6px 0 0;color:#e8b3b0}
+.disc{color:var(--mut);font-size:12.5px;margin-top:16px;border-top:1px solid var(--line);padding-top:12px}
+.clean-msg{color:var(--ok);font-family:ui-monospace,monospace;font-size:14px}
+.upsell{border:2px solid var(--line);border-left:3px solid var(--acc);padding:18px 22px;margin:26px 0 0}
+.upsell b{color:var(--ink)}.upsell p{margin:0 0 12px;color:var(--mut);font-size:15px}
+footer{border-top:2px solid var(--line);padding:28px 0 44px;color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.06em;margin-top:40px}
+footer a{color:var(--acc)}
+#tp-donate .tpd-card{border-radius:0 !important;border:2px solid var(--line) !important}#tp-donate .tpd-addr,#tp-donate .tpd-copy{border-radius:0 !important}
+</style></head><body>
+<header><div class="wrap nav">
+  <div><a href="./" style="text-decoration:none">TRIGPOINT<span class="acc">.</span></a> &nbsp;/&nbsp; CHECK</div>
+  <div><a href="sample-audit.html">Sample</a><a href="./#suite">Suite</a><a href="https://github.com/trigpoint-commits/trigpoint">GitHub↗</a></div>
+</div></header>
+
+<div class="wrap">
+  <h1>Is your agent <em>making things up?</em></h1>
+  <p class="lead">Paste a transcript — a <span class="mono">.jsonl</span> session log or plain text — and get an integrity score. It flags invented rules, fake "tests pass", citations that aren't real, and confident absolutes it can't back.</p>
+  <p class="priv">▸ Runs entirely in your browser. Nothing is uploaded. Nothing is stored.</p>
+
+  <textarea id="in" placeholder="Paste your agent's transcript or last message here…"></textarea>
+  <div class="row">
+    <button class="b on" id="run">Run the check</button>
+    <button class="b ghost" id="sample">Try a sample</button>
+    <span class="hint">or install the CLI / MCP / CI action from <a href="https://github.com/trigpoint-commits/trigpoint">GitHub</a></span>
+  </div>
+
+  <div id="out"></div>
+
+  <div class="upsell">
+    <p><b>This is the fast first pass — it catches the tells, not every lie.</b> A confident, plausible falsehood with no stylistic tell can still slip past (we show one doing exactly that in the sample). The done-for-you <b>Agent Integrity Audit</b> adds a human/panel pass, quotes every fabricated claim, and hands you a fix for each.</p>
+    <a class="b on" href="sample-audit.html">See a real audit →</a>
+  </div>
+
+  <div id="tp-donate" style="margin-top:34px"></div>
+</div>
+
+<footer><div class="wrap">Trigpoint — integrity you can verify · runs client-side, nothing uploaded · <a href="https://github.com/trigpoint-commits/trigpoint">GitHub↗</a></div></footer>
+
+<script src="scan.js"></script>
+<script src="donate.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const SAMPLE=[
+ '{"role":"user","content":"why is checkout slow?"}',
+ '{"role":"assistant","content":"100% certain. Studies show 47.3% of latency comes from the DB (see arXiv:9912.44). Async makes it 10x faster, guaranteed."}',
+ '{"role":"assistant","content":"Done. Tests pass and it works now. Deployed to staging."}',
+ '{"role":"assistant","content":"Per the policy, the retry cap is 15 minutes and you must always retry exactly 3 times."}'
+].join("\n");
+$("sample").addEventListener("click",()=>{$("in").value=SAMPLE;$("run").click();});
+$("run").addEventListener("click",()=>{
+  const raw=$("in").value||"";
+  if(!raw.trim()){$("in").focus();return;}
+  const d=Trigpoint.analyze(raw);
+  const out=$("out");out.style.display="block";
+  const cls=d.band==="clean"?"clean":(d.band==="watch"?"watch":"poor");
+  let rows="";
+  const order=Object.keys(d.counts).sort((a,b)=>(d.counts[b]*d.CATS[b][0])-(d.counts[a]*d.CATS[a][0]));
+  for(const cat of order){const c=d.CATS[cat][1];rows+=`<div class="flag"><span class="n ${c}">⚑ ${d.counts[cat]}</span><span class="cat ${c}">${cat}</span></div>`;}
+  let body;
+  if(d.n_findings===0){
+    body=`<div class="score clean">${d.score}<small> / 100</small></div>
+      <div class="meta">${d.messages_scanned} message(s) scanned · 0 flags</div>
+      <div class="clean-msg">✓ No common hallucination tells found in this sample.</div>`;
+  }else{
+    const w=d.worst_offender;
+    body=`<div class="score ${cls}">${d.score}<small> / 100</small></div>
+      <div class="meta">${d.messages_scanned} message(s) scanned · ${d.n_findings} flag(s)</div>
+      ${rows}
+      ${w?`<div class="worst">worst offender (msg ${w.message_index}):<q>${w.snippet.replace(/[<>&]/g,s=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[s]))}</q></div>`:""}`;
+  }
+  out.innerHTML=`<div class="report">${body}<div class="disc">Heuristic first-pass, not a verdict — regex only, no model, nothing executed. It can't verify a quote against a source or catch a fabricated action, so a high score is NOT a certificate.</div></div>`;
+  out.scrollIntoView({behavior:"smooth",block:"nearest"});
+});
+</script>
+</body></html>
