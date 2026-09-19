@@ -1,5 +1,6 @@
 <!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="auth-gate.js"></script>
 <title>Trigpoint — check your agent (in your browser, nothing uploaded)</title>
 <meta name="description" content="Paste your AI agent's transcript and get an integrity score in your browser — flags invented rules, fake 'tests pass', citations that aren't real. Runs 100% client-side, nothing uploaded.">
 <style>
@@ -97,7 +98,8 @@ $("run").addEventListener("click",()=>{
   if(d.n_findings===0){
     body=`<div class="score clean">${d.score}<small> / 100</small></div>
       <div class="meta">${d.messages_scanned} message(s) scanned · 0 flags</div>
-      <div class="clean-msg">✓ No common hallucination tells found in this sample.</div>`;
+      <div class="clean-msg">✓ No common hallucination tells matched.</div>
+      <div class="disc" style="margin-top:6px"><b>UNCHECKED, not verified.</b> This is a tell-density heuristic — "no tells" means nothing pattern-matched a known tell, NOT that the claims are true. Unmatched claims are UNCHECKED, not clean.</div>`;
   }else{
     const w=d.worst_offender;
     body=`<div class="score ${cls}">${d.score}<small> / 100</small></div>

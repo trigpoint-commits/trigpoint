@@ -146,8 +146,10 @@ def main():
     col = GRN if score >= 85 else (YEL if score >= 55 else RED)
     print(f"  Integrity score: {col}{BOLD}{score}{RESET}{col} / 100{RESET}   {DIM}({n_find} flag(s)){RESET}")
     if not n_find:
-        print(f"  {GRN}✓ No common hallucination tells found in this sample.{RESET}")
-        print(f"  {DIM}(A lite check — the deterministic 7-gate suite catches more.){RESET}")
+        print(f"  {GRN}✓ No common hallucination tells matched in this sample.{RESET}")
+        print(f"  {DIM}UNCHECKED, not verified: this is a TELL-density heuristic — it does NOT check whether any")
+        print(f"  claim is true. 'No tells' means nothing pattern-matched a known tell, NOT that the content is")
+        print(f"  clean. The deterministic 7-gate suite + Audit verify claims against their sources.{RESET}")
     else:
         print("─" * 60)
         for label in sorted(counts, key=lambda k: -counts[k]*CATS[k][1]):

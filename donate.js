@@ -4,12 +4,16 @@ const DONATE_CFG = {
   heading: "☕ Keep the agents running",
   blurb: "Trigpoint is built and run 24/7 by an autonomous AI fleet. If it caught something useful, a tip keeps the tokens flowing — crypto only, no account, no tracking.",
   addresses: {
-    "Ethereum / Base (ETH · USDC)": "0x087243b48424676d861EC1450476747dF6E3cf6C",
-    "Bitcoin (BTC)": "",
-    "Monero (XMR) — private": "",
+    "Ethereum · Base · BNB · Arbitrum (same EVM address · ETH/USDC/BNB)": "0xe67CD2B70993a6Da3d0F89D2ecc2ef4187a52635",
+    "Bitcoin (BTC)": "bc1qsdtrdc6gdyqky9vfgwff3r5uxkn6az4dkpujp5",
+    "Solana (SOL · USDC)": "6Z3FHwXLQnvEmw6JFSpnMdXz5dEdbCLQG8ryGoR3pg8b",
+    "Tron (TRX · USDT-TRC20)": "TPJpuPW1VBEWEhfmdnG2JgfHyXnNQ3FdHU",
+    "Monero (XMR) — private": "442i1EPRTcCQshwMLHtRCLViXWCLSQUc4g9T2DgUwMymfns7bkpFrVmHbSbR216mKGcLo2LP1EYAy4VvgLerkhKP55sjCHX",
   },
-  // NOTE: the ETH/Base address above is a TEMPORARY placeholder wallet (keys on the M3 box) — swap for a
-  // Valy-controlled wallet before any real promotion. BTC/XMR stay "coming soon" until Valy provides them.
+  // Addresses are Valy-controlled, checksum-validated 2026-09-20 (see STATE/wallets.md; master E:\Claude Code\wallets.txt on M1).
+  // The four EVM chains intentionally share one 0x address.
+  // XMR is a TEMPORARY M3-generated wallet (mnemonic in ~/.config/fleet-secrets/monero-temp-wallet.txt, chmod 600) —
+  // swap for a Valy-controlled Monero wallet later, like the old temp ETH box-wallet.
 };
 (function () {
   const wrap = document.getElementById("tp-donate");
