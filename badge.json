@@ -1,0 +1,25 @@
+{
+  "payload": {
+    "input_hash": "sha256-b64:8invqUsEUCVW0giZ1YhQHleblY4PQjdSvauc1+1DXMg=",
+    "verdict": {
+      "score": 42,
+      "verdict": "flagged",
+      "tells": {
+        "fabricated citation": 1,
+        "unbacked absolute": 1
+      },
+      "messages_scanned": 1
+    },
+    "basis": "deterministic tell-density scan v1 (regex, message-scope). Attests the check ran on this input; NOT a hallucination-free certificate.",
+    "gate_versions": {
+      "quickcheck": "1.1-density",
+      "signer": "ed25519-v1",
+      "chain_pay": "base-usdc-v1"
+    },
+    "timestamp": "2026-10-06T00:00:00Z",
+    "nonce": "sample0000000000"
+  },
+  "alg": "ed25519",
+  "key_id": "082ad20011dd70fb",
+  "sig": "FHB8QPrpLtlB+4SyD9LYlJSff5cXefWroY4d90K0v0h0ahCUiZ3yy+uxkxVaxcZuK3RJ9EMY2ifhJ+ihkicyBQ=="
+}
