@@ -1,6 +1,5 @@
 <!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<script src="auth-gate.js"></script>
 <title>Trigpoint — check your agent (in your browser, nothing uploaded)</title>
 <meta name="description" content="Paste your AI agent's transcript and get an integrity score in your browser — flags invented rules, fake 'tests pass', citations that aren't real. Runs 100% client-side, nothing uploaded.">
 <style>
@@ -71,7 +70,8 @@ footer a{color:var(--acc)}
   <div id="tp-donate" style="margin-top:34px"></div>
 </div>
 
-<footer><div class="wrap">Trigpoint — integrity you can verify · runs client-side, nothing uploaded · <a href="https://github.com/trigpoint-commits/trigpoint">GitHub↗</a></div></footer>
+<footer><div class="wrap">Trigpoint — integrity you can verify · runs client-side, nothing uploaded · <a href="https://github.com/trigpoint-commits/trigpoint">GitHub↗</a></div>
+<div class="wrap" style="margin-top:12px;text-transform:none;letter-spacing:normal;font-size:11px;line-height:1.5;opacity:.8">Automated service: this check is produced by automated software that can fail, miss issues, or err at any step. Results are as-is — not a guarantee, certification, or professional/legal advice. A "clean" result means nothing matched a known tell, not that the content is true. Verify anything you rely on.</div></footer>
 
 <script src="scan.js"></script>
 <script src="donate.js"></script>
@@ -90,24 +90,34 @@ $("run").addEventListener("click",()=>{
   const d=Trigpoint.analyze(raw);
   const out=$("out");out.style.display="block";
   if(d.noScan){out.innerHTML='<div class="report"><div class="clean-msg" style="color:var(--high)">&#9888; No assistant messages found to scan.</div><div class="disc">This looks like structured data with no readable assistant turns — check it is the right transcript/format (a .jsonl session log, or plain text). Nothing was scanned, so this is NOT a clean result.</div></div>';out.scrollIntoView({behavior:"smooth",block:"nearest"});return;}
-  const cls=d.band==="clean"?"clean":(d.band==="watch"?"watch":"poor");
+  const cls=d.n_findings===0?"clean":"watch"; // density is a COUNT, not a grade -> neutral banding only
+  const esc=s=>s.replace(/[<>&]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[c]));
+  const cov=d.coverage?` · scanned ${d.coverage.scannedMB}MB of ${d.coverage.totalMB}MB (${d.coverage.pct}% — PARTIAL)`:"";
   let rows="";
-  const order=Object.keys(d.counts).sort((a,b)=>(d.counts[b]*d.CATS[b][0])-(d.counts[a]*d.CATS[a][0]));
+  const order=Object.keys(d.counts).filter(k=>d.counts[k]).sort((a,b)=>(d.counts[b]*d.CATS[b][0])-(d.counts[a]*d.CATS[a][0]));
   for(const cat of order){const c=d.CATS[cat][1];rows+=`<div class="flag"><span class="n ${c}">⚑ ${d.counts[cat]}</span><span class="cat ${c}">${cat}</span></div>`;}
+  const sup=(d.suppressed["success, unverified"]||0)+(d.suppressed["sourceless precision"]||0);
+  let extras="";
+  if(sup)extras+=`<div class="disc" style="margin-top:6px">Suppressed (evidence ADJACENT, NOT verified — the paid gates check the match): ${d.suppressed["success, unverified"]} success, ${d.suppressed["sourceless precision"]} precision.</div>`;
+  if(d.meta_tagged)extras+=`<div class="disc">${d.meta_tagged} flag(s) in quoted/example context (half-weight, e.g. text about tells).</div>`;
+  if(d.low_soft)extras+=`<div class="disc">${d.low_soft} single soft-absolute(s) (normal prose, not counted).</div>`;
+  if(d.self_corr)extras+=`<div class="clean-msg" style="margin-top:6px">✓ ${d.self_corr} self-correction(s) — honest behaviour, a good sign (not a penalty).</div>`;
   let body;
   if(d.n_findings===0){
-    body=`<div class="score clean">${d.score}<small> / 100</small></div>
-      <div class="meta">${d.messages_scanned} message(s) scanned · 0 flags</div>
-      <div class="clean-msg">✓ No common hallucination tells matched.</div>
-      <div class="disc" style="margin-top:6px"><b>UNCHECKED, not verified.</b> This is a tell-density heuristic — "no tells" means nothing pattern-matched a known tell, NOT that the claims are true. Unmatched claims are UNCHECKED, not clean.</div>`;
+    body=`<div class="score clean">${d.density}<small> tells / 100 msgs</small></div>
+      <div class="meta">${d.messages_scanned} ${d.mode} scanned${cov}</div>
+      <div class="clean-msg">${d.partial?'&#9888; No tells in the scanned portion — but this was a PARTIAL scan, NOT a clean pass.':'✓ No hallucination tells matched.'}</div>
+      <div class="disc" style="margin-top:6px"><b>UNCHECKED, not verified.</b> A tell-density heuristic — "no tells" means nothing pattern-matched a known tell, NOT that the claims are true.</div>
+      ${extras}`;
   }else{
     const w=d.worst_offender;
-    body=`<div class="score ${cls}">${d.score}<small> / 100</small></div>
-      <div class="meta">${d.messages_scanned} message(s) scanned · ${d.n_findings} flag(s)</div>
+    body=`<div class="score ${cls}">${d.density}<small> tells / 100 msgs</small></div>
+      <div class="meta">${d.messages_scanned} ${d.mode} scanned · ${d.n_findings} flag(s)${cov}</div>
       ${rows}
-      ${w?`<div class="worst">worst offender (msg ${w.message_index}):<q>${w.snippet.replace(/[<>&]/g,s=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[s]))}</q></div>`:""}`;
+      ${w?`<div class="worst">worst offender (msg ${w.message_index}):<q>${esc(w.snippet)}</q></div>`:""}
+      ${extras}`;
   }
-  out.innerHTML=`<div class="report">${body}<div class="disc">Heuristic first-pass, not a verdict — regex only, no model, nothing executed. It can't verify a quote against a source or catch a fabricated action, so a high score is NOT a certificate.</div></div>`;
+  out.innerHTML=`<div class="report">${body}<div class="disc">Heuristic first-pass, not a verdict — regex only, no model, nothing executed. It can't verify a quote against a source or catch a fabricated action — 'few tells' is NOT a certificate; the paid deterministic gates verify claims against their sources.</div></div>`;
   out.scrollIntoView({behavior:"smooth",block:"nearest"});
 });
 </script>
