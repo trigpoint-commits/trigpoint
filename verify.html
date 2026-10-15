@@ -1,0 +1,83 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trigpoint — verify a signed result</title>
+<meta name="description" content="Independently verify a Trigpoint signed result or badge: check the ed25519 signature against our public key, and confirm it is bound to your exact request. Runs entirely in your browser.">
+<style>
+:root{--bg:#0b0b0c;--ink:#f4f4f2;--mut:#8a8a86;--line:#33332f;--acc:#d7ff3f;--red:#ff5c5c;--ok:#3ad17a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Helvetica Neue",Arial,sans-serif;padding:28px 16px}
+.wrap{max-width:860px;margin:0 auto}h1{font-size:30px;text-transform:uppercase;letter-spacing:-.02em;margin:0 0 6px}
+.sub{color:var(--mut);margin:0 0 22px;max-width:640px}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+label{display:block;font-weight:800;text-transform:uppercase;letter-spacing:.05em;font-size:12px;margin:18px 0 6px;color:var(--acc)}
+textarea{width:100%;min-height:150px;background:#000;border:2px solid var(--line);color:var(--ink);font-family:ui-monospace,monospace;font-size:13px;padding:12px}
+input{width:100%;background:#000;border:2px solid var(--line);color:var(--ink);font-family:ui-monospace,monospace;font-size:13px;padding:10px;margin-top:4px}
+button{font-weight:800;text-transform:uppercase;letter-spacing:.05em;font-size:13px;padding:13px 22px;border:2px solid var(--acc);background:var(--acc);color:#000;cursor:pointer;margin-top:16px}
+.r{margin-top:20px;border:2px solid var(--line);padding:16px;font-size:14px;white-space:pre-wrap;word-break:break-word}
+.r.valid{border-color:var(--ok)}.r.invalid{border-color:var(--red)}
+.v{color:var(--ok);font-weight:800}.x{color:var(--red);font-weight:800}
+.k{color:var(--mut);font-size:12px;margin-top:22px;line-height:1.6}
+a{color:var(--acc)}
+</style></head><body><div class="wrap">
+<h1>Verify a signed result</h1>
+<p class="sub">Paste a Trigpoint signed result or badge below. Your browser checks the <b>ed25519 signature</b> against
+our published public key — and, if you paste your original request, confirms the result is <b>bound to it</b> (so it
+can't be a different answer replayed at you). Nothing is uploaded; this page calls no server.</p>
+
+<label>Signed result / badge (JSON)</label>
+<textarea id="sig" placeholder='Paste the signed object, e.g. {"payload":{...},"alg":"ed25519","key_id":"...","sig":"..."} (or a badge with the same fields)'></textarea>
+<label>Your original request (optional — to confirm the result is bound to YOUR input)</label>
+<input id="req" placeholder="paste the exact request bytes/text you sent (optional)">
+<button id="go">Verify</button>
+<div id="out" class="r" style="display:none"></div>
+
+<p class="k">Our ed25519 public key (hex): <span class="mono" id="pk">498fd8aac35d5e7b2f8c849cb2cdc9c0a88a9ebf2844d1c03c1f8bed06092be3</span><br>
+A VALID signature proves the result was produced by the holder of our key and has not been altered. It is not a
+certificate of truth — see <a href="index.html">what each tool guarantees</a>. Signature scheme: ed25519 over the
+canonical (sorted-keys, compact) JSON of <span class="mono">payload</span>; request binding: <span class="mono">sha256(request)</span> must equal <span class="mono">payload.input_hash</span>.</p>
+</div>
+<script>
+const PK_HEX="498fd8aac35d5e7b2f8c849cb2cdc9c0a88a9ebf2844d1c03c1f8bed06092be3";
+const hexToBytes=h=>new Uint8Array(h.match(/.{1,2}/g).map(b=>parseInt(b,16)));
+const b64ToBytes=b=>Uint8Array.from(atob(b.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
+// canonical JSON matching Python json.dumps(payload, sort_keys=True, separators=(",",":"), ensure_ascii=True).
+// ensure_ascii escapes every char >= U+0080 as \uXXXX (astral chars as surrogate pairs — charCodeAt gives the
+// surrogate halves, matching Python). Without this, a genuine result with any non-ASCII char (findings snippets carry
+// Unicode from the transcript) would re-canonicalize differently and show INVALID. (Numbers: our signed payloads use
+// integers within the safe range; floats/ints>2^53 are not used here.)
+function jstr(s){ return JSON.stringify(s).replace(/[\u0080-￿]/g, c=>"\\u"+c.charCodeAt(0).toString(16).padStart(4,"0")); }
+function canon(v){
+  if(v===null) return "null";
+  if(typeof v==="string") return jstr(v);
+  if(typeof v!=="object") return JSON.stringify(v);
+  if(Array.isArray(v)) return "["+v.map(canon).join(",")+"]";
+  return "{"+Object.keys(v).sort().map(k=>jstr(k)+":"+canon(v[k])).join(",")+"}";
+}
+async function sha256hex(s){const d=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));
+  return [...new Uint8Array(d)].map(b=>b.toString(16).padStart(2,"0")).join("");}
+async function verify(){
+  const out=document.getElementById("out"); out.style.display="block"; out.className="r"; out.textContent="verifying…";
+  let obj; try{obj=JSON.parse(document.getElementById("sig").value);}catch(e){out.className="r invalid";out.innerHTML='<span class="x">✗ not valid JSON</span> — paste the whole signed object.';return;}
+  const payload=obj.payload, sig=obj.sig||obj.signature;
+  if(!payload||!sig){out.className="r invalid";out.innerHTML='<span class="x">✗ missing payload or sig</span> — expected {payload,sig,alg:"ed25519"}.';return;}
+  if(obj.alg && obj.alg!=="ed25519"){out.className="r invalid";out.innerHTML='<span class="x">✗ unsupported alg</span> — this verifier only checks ed25519.';return;}
+  let ok=false,err="";
+  try{
+    const key=await crypto.subtle.importKey("raw",hexToBytes(PK_HEX),{name:"Ed25519"},false,["verify"]);
+    ok=await crypto.subtle.verify({name:"Ed25519"},key,b64ToBytes(sig),new TextEncoder().encode(canon(payload)));
+  }catch(e){err=e.message||String(e);}
+  let lines=[];
+  if(err){out.className="r invalid";out.innerHTML='<span class="x">✗ could not verify</span> — '+err+'\n(your browser may not support ed25519 in Web Crypto; try a recent Chrome/Firefox/Safari).';return;}
+  lines.push(ok?'<span class="v">✓ SIGNATURE VALID</span> — produced by our key, not altered.':'<span class="x">✗ SIGNATURE INVALID</span> — not ours, or altered.');
+  if(payload.service) lines.push("service: "+payload.service+"  version: "+(payload.version||"?"));
+  if(payload.timestamp) lines.push("signed at: "+payload.timestamp);
+  if(payload.key_id||obj.key_id) lines.push("key id: "+(payload.key_id||obj.key_id));
+  const req=document.getElementById("req").value;
+  if(req && payload.input_hash){
+    const h=await sha256hex(req);
+    const bound = (payload.input_hash===h || payload.input_hash==="sha256-b64:"+btoa(String.fromCharCode(...hexToBytes(h))));
+    lines.push(bound?'<span class="v">✓ BOUND TO YOUR REQUEST</span> — this result answers exactly what you sent.':'<span class="x">✗ NOT bound to that request</span> — input_hash does not match sha256 of what you pasted.');
+  } else if(payload.input_hash){ lines.push("input_hash present: "+payload.input_hash+"  (paste your request above to check binding)"); }
+  out.className="r "+(ok?"valid":"invalid"); out.innerHTML=lines.join("\n");
+}
+document.getElementById("go").addEventListener("click",verify);
+</script></body></html>

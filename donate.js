@@ -8,7 +8,7 @@ const DONATE_CFG = {
     "Bitcoin (BTC)": "bc1qsdtrdc6gdyqky9vfgwff3r5uxkn6az4dkpujp5",
     "Solana (SOL · USDC)": "6Z3FHwXLQnvEmw6JFSpnMdXz5dEdbCLQG8ryGoR3pg8b",
     "Tron (TRX · USDT-TRC20)": "TPJpuPW1VBEWEhfmdnG2JgfHyXnNQ3FdHU",
-    "Monero (XMR) — private": "442i1EPRTcCQshwMLHtRCLViXWCLSQUc4g9T2DgUwMymfns7bkpFrVmHbSbR216mKGcLo2LP1EYAy4VvgLerkhKP55sjCHX",
+    "Monero (XMR) — privacy coin": "442i1EPRTcCQshwMLHtRCLViXWCLSQUc4g9T2DgUwMymfns7bkpFrVmHbSbR216mKGcLo2LP1EYAy4VvgLerkhKP55sjCHX",
   },
   // Addresses are Valy-controlled, checksum-validated 2026-09-20 (see STATE/wallets.md; master E:\Claude Code\wallets.txt on M1).
   // The four EVM chains intentionally share one 0x address.

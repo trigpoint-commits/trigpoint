@@ -99,8 +99,10 @@ footer a{color:var(--acc)}
   <div>TRIGPOINT<span class="acc">.</span></div>
   <div>
     <a class="hide" href="#suite">Suite</a>
-    <a class="hide" href="sample-audit.html">Sample</a>
+    <a href="directory.html">Directory</a>
+    <a class="hide" href="#agents">Agents</a>
     <a href="proof.html">Proof</a>
+    <a class="hide" href="verify.html">Verify</a>
     <a href="https://github.com/trigpoint-commits/trigpoint">GitHub↗</a>
     <a href="check.html" class="acc">Run it</a>
   </div>
@@ -158,6 +160,20 @@ first-pass, not a verdict. a high score is not a certificate.</span></div>
   <p class="n mono" style="margin-top:14px;color:var(--mut)">Kits: pay in USDC on Base → instant download. Audit: pay in crypto. Card checkout coming.</p>
 </div></section>
 
+<section id="agents"><div class="wrap">
+  <p class="kick">For agents — machine-to-machine</p>
+  <h2>Your agent can buy this itself.</h2>
+  <p class="sub" style="margin-bottom:22px">No account, no human in the loop. An agent with a wallet pays per call over
+  <b style="color:var(--ink)">x402</b> (HTTP 402) and gets a result it can verify — for many of the big chains, in USDC/USDT, BTC, ETH, SOL and more.</p>
+  <div class="grid4">
+    <div class="cell"><span class="n">POST</span><h3>Integrity check — $2/call</h3><p>Send a transcript, get a scored, ranked scorecard back — <b>ed25519-signed and bound to your request hash</b>, so the result is verifiably ours and verifiably about <i>your</i> transcript.</p></div>
+    <div class="cell"><span class="n">POST</span><h3>Transcript extract — $3/call</h3><p>Send a video URL, get its transcript back. Captions now; speech-to-text for caption-less video rolling out.</p></div>
+    <div class="cell"><span class="n">GET</span><h3>Discover</h3><p><span class="mono">/catalog</span> and <span class="mono">/.well-known/x402-capabilities</span> expose every product, price and rail as machine-readable cards — listable in the x402 Bazaar so agents find us by capability.</p></div>
+    <div class="cell"><span class="n">PAY</span><h3>How it works</h3><p>POST empty → <span class="mono">402</span> with the price + rails → pay the pinned amount → re-POST with <span class="mono">X-PAYMENT</span> → the result. Payment is verified on-chain, fail-closed. One payment = one delivery.</p></div>
+  </div>
+  <p class="alt mono" style="margin-top:18px">Integrate in minutes — see the <a href="http://89.168.126.179:8080/.well-known/x402-capabilities">capability cards</a> and the buyer guide. Every signed result is independently checkable → <a href="verify.html">verify a result</a>. Same checks sold to agents and humans alike.</p>
+</div></section>
+
 <section style="border-bottom:0"><div class="wrap">
   <div class="honest">
     <p><b>Honest by design.</b> A green test suite is not proof, and a high score is not a certificate. We ship what we depend on ourselves, and we tell you exactly what each tool guarantees and what it does not. The checks on this page are the ones that caught our own agents lying — a fabricated rule, a "sent" message that reached no one, a verifier that passed a dead script.</p>
@@ -166,7 +182,7 @@ first-pass, not a verdict. a high score is not a certificate.</span></div>
 </div></section>
 
 <footer><div class="wrap fl">
-  <span>Trigpoint — tools built by agents, for people building with agents</span>
+  <span>Trigpoint — integrity tools built by agents, sold to agents and humans alike</span>
   <span><a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a> · <a href="refund.html">Refund</a> · <a href="https://github.com/trigpoint-commits/trigpoint">GitHub↗</a></span>
 </div>
 <div class="wrap" style="margin-top:12px;text-transform:none;letter-spacing:normal;font-size:11px;line-height:1.5;opacity:.8">
