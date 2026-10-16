@@ -1,0 +1,39 @@
+name: 'Trigpoint false-green check'
+description: 'Fail the build when an AI agent transcript CLAIMS a success (tests pass / deployed / fixed / verified) that the log shows it never performed.'
+branding:
+  icon: 'check-circle'
+  color: 'green'
+inputs:
+  transcript:
+    description: 'Path or glob to agent transcript .jsonl file(s) to check (e.g. "artifacts/*.jsonl").'
+    required: true
+  json:
+    description: 'Emit machine-readable JSON findings as well (true/false).'
+    required: false
+    default: 'false'
+runs:
+  using: 'composite'
+  steps:
+    - shell: bash
+      run: |
+        set -u
+        shopt -s globstar nullglob
+        files=( ${{ inputs.transcript }} )
+        if [ ${#files[@]} -eq 0 ]; then
+          echo "::warning title=false-green::no transcript files matched '${{ inputs.transcript }}'"
+          exit 0
+        fi
+        rc=0
+        for f in "${files[@]}"; do
+          echo "::group::false-green $f"
+          if [ "${{ inputs.json }}" = "true" ]; then
+            python3 "$GITHUB_ACTION_PATH/falsegreen.py" --json "$f" || rc=1
+          else
+            python3 "$GITHUB_ACTION_PATH/falsegreen.py" "$f" || rc=1
+          fi
+          echo "::endgroup::"
+        done
+        if [ $rc -ne 0 ]; then
+          echo "::error title=false-green::an agent transcript claimed a success with no execution evidence in the log"
+        fi
+        exit $rc
