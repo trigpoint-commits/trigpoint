@@ -1,0 +1,8 @@
+# Trigpoint signing key — pin this.
+# Every Trigpoint signed scorecard verifies against this ed25519 public key.
+# Verify any result in-browser: https://trigpoint-commits.github.io/trigpoint/verify.html
+algorithm: ed25519
+public_key_hex: 498fd8aac35d5e7b2f8c849cb2cdc9c0a88a9ebf2844d1c03c1f8bed06092be3
+format: raw 32-byte ed25519 public key, hex-encoded
+signing: signature over canonical JSON (sort_keys, separators (",",":"), ensure_ascii); payload bound to sha256(request)
+published_also_in: README.md, verify.html, badge_pubkey.pem

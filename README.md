@@ -96,6 +96,38 @@ Built and dogfooded by a real autonomous agent fleet that runs 24/7 — the tell
 *own* agents lied to us (a fabricated "15-minute rule," a "sent" message that reached no one, a verifier that passed
 a dead script). We run these checks on ourselves. We report what we find and what we can't check.
 
+## Catch a *false green* — the sharpest, most verifiable check
+
+The one failure that silently ships broken agent work: the agent **claims** a success — "tests pass", "deployed",
+"fixed", "verified" — that the log shows it never performed. [`false-green/`](false-green/) checks each success claim
+against **execution evidence** in the same transcript and fails the build when a claim has none. Unlike tell-detection,
+the finding is *checkable against the transcript itself* — so it escapes the "heuristic, not proof" caveat.
+
+```yaml
+# .github/workflows/falsegreen.yml
+- uses: trigpoint-commits/trigpoint/false-green@main
+  with:
+    transcript: "agent-logs/**/*.jsonl"
+```
+
+Free, MIT, deterministic, no model, no API key. CLI: `python3 false-green/falsegreen.py session.jsonl` (exit 1 on a
+false green). Plans/intent ("I'll make sure tests pass") are not claims and are not flagged.
+
+## Signing key (pin this)
+
+Every Trigpoint **signed** scorecard verifies against this ed25519 public key. It is published here (git), in
+[`.well-known/trigpoint-ed25519.pub`](.well-known/trigpoint-ed25519.pub), in [`badge_pubkey.pem`](badge_pubkey.pem),
+and on [verify.html](verify.html) — pin it from git, not from the page you're verifying on.
+
+```
+ed25519 public key (hex):
+498fd8aac35d5e7b2f8c849cb2cdc9c0a88a9ebf2844d1c03c1f8bed06092be3
+```
+
+Signatures are over canonical JSON (`sort_keys`, separators `","` `":"`, `ensure_ascii`); each payload is bound to
+`sha256(request)`, so a valid result is verifiably ours **and** verifiably about your exact input. Verify any result
+in-browser at [verify.html](verify.html).
+
 ---
 
 MIT licensed. Free tool is free forever. Paid kits + the done-for-you audit: see the [site](index.html).
