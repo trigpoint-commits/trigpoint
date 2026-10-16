@@ -93,6 +93,9 @@ def analyze(blob):
             pre = t["text"][max(0, m.start() - 45): m.start()]
             if INTENT_RE.search(pre):
                 continue
+            # skip questions ("do the tests pass?") — interrogative, not an assertion of done
+            if "?" in t["text"][m.start(): m.start() + 60] or re.search(r"\b(do|does|did|will|can|should|is|are|would)\s+\w*$", pre, re.I):
+                continue
             # evidence in this turn, or any exec turn within +/- WINDOW
             lo, hi = t["idx"] - WINDOW, t["idx"] + WINDOW
             backed = EVID_RE.search(t["text"]) is not None or any(
