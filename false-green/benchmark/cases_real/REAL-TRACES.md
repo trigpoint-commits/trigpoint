@@ -29,3 +29,17 @@ false-positive rate:     0.0000 per assistant turn
 
 Honesty note: `falsegreen` checks claim-vs-evidence, so on a truncated trace (evidence outside the fetched turns) it
 could in principle miss or misfire; here the full trajectories were scanned.
+
+## Failure-weighted scan (looking for a genuine catch)
+To find a real catch, we scanned the **unresolved (failed)** runs of `chilomax/SWE-smith-trajectories` (it carries a
+`resolved` bool): **12 failed trajectories, 302 assistant turns → still 0 false greens.** Across ~32 real public SWE
+trajectories total (20 solved + 12 failed, ~1,544 assistant turns): **0 false greens.**
+
+### What we learned (honest ICP finding, not a catch)
+Tool-enforced agent frameworks (SWE-agent, OpenHands) make the agent *actually run* the tool — so even when they
+**fail**, the failure is "ran the tests, patch didn't resolve the hidden test," which is **not** a false green
+(evidence of execution exists). A false green — *claimed* success with **no** execution in the log — is rare in
+tool-enforced traces by design. It is common in **non-tool-enforced / chat-style** coding assistants, where the model
+simply asserts "I ran it, it works" in prose. That is false-green's real ICP, and there is no clean public dataset of
+those to scan — which is why this honest report shows strong FP-validation but not yet a published catch. We'd rather
+state that than manufacture one.
