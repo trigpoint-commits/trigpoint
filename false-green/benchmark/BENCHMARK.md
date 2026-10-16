@@ -25,8 +25,11 @@ All 5 false greens caught; none of the 8 legitimate cases flagged.
 - **It checks claim-vs-evidence, not whether the evidence is correct.** A fabricated test log that *looks* like a
   pass counts as evidence here; this catches the "claimed but never ran" case, not the "ran but lied about the
   result" case.
-- **Real public traces** go in `cases_real/` as they're vetted (source-neutral, no naming/shaming). Numbers measured
-  on real traces will be reported separately and will be lower — that's expected and will be stated plainly.
+- **Real public traces:** measured — see [`cases_real/REAL-TRACES.md`](cases_real/REAL-TRACES.md). On 20 real public
+  OpenHands SWE-agent trajectories (**1,242 assistant turns**), false-green raised **0 flags** → a real-data
+  false-positive validation (it stays quiet on legitimate test-backed success). That is *not* a catch — a success set
+  has no false greens by construction; a genuine catch needs failure-weighted traces, which is the next step and whose
+  numbers will be reported plainly.
 
 ## Method
 `bench.py` runs `falsegreen.analyze()` on each case and compares the boolean verdict to the label. precision = of
