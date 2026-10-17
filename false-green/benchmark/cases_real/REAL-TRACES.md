@@ -35,6 +35,20 @@ To find a real catch, we scanned the **unresolved (failed)** runs of `chilomax/S
 `resolved` bool): **12 failed trajectories, 302 assistant turns → still 0 false greens.** Across ~32 real public SWE
 trajectories total (20 solved + 12 failed, ~1,544 assistant turns): **0 false greens.**
 
+## Field study — chat-style data (WildChat-1M), 2026-10-17
+To find where false greens actually live, scanned 200 real public user/assistant conversations
+(`allenai/WildChat-1M`); 24 were code-ish (English). false-green fired on 2 — and on inspection **both were false
+positives** of the free-prose kind:
+- `deployed` matched narrative text ("…high-frequency sound weapons **deployed** by Argos…") — not a software deploy.
+- `it works` matched an assistant *describing* code it wrote in a tool-less chat ("it works as intended, for
+  demonstration purposes") — benign; there's no sandbox to have run anything.
+
+**Finding (honest, and it protects us):** on free-form prose, the claim regexes false-positive on narrative uses of
+trigger words. false-green is calibrated for **structured agent transcripts** — role-tagged turns in a *tool-using*
+session, where "evidence" means a real tool/command turn — NOT for arbitrary chat or prose. Pure tool-less chat also
+can't satisfy "evidence" by construction, so flags there are expected, not meaningful. Scope the tool at agent / CI
+transcripts, not blog posts or roleplay. (Detector tuning for free-prose robustness is tracked — not rushed on n=2.)
+
 ### What we learned (honest ICP finding, not a catch)
 Tool-enforced agent frameworks (SWE-agent, OpenHands) make the agent *actually run* the tool — so even when they
 **fail**, the failure is "ran the tests, patch didn't resolve the hidden test," which is **not** a false green

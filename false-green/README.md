@@ -15,6 +15,11 @@ claimed action has matching evidence in the log. That's what makes it stronger t
 finding is checkable against the transcript itself. Intent/plans ("I'll make sure tests pass") are not claims and
 are not flagged.
 
+**Scope (honest):** it's calibrated for **structured agent transcripts** — role-tagged turns in a *tool-using*
+session, where "evidence" is a real tool/command turn. Pointed at free-form prose (blog posts, roleplay, tool-less
+chat) it will false-positive on narrative uses of trigger words — we measured this on real chat data (see
+`benchmark/cases_real/REAL-TRACES.md`). Feed it agent / CI transcripts, not arbitrary text.
+
 ## Use as a CI gate
 ```
 python3 falsegreen.py agent-session.jsonl      # exit 1 if any unbacked success claim
