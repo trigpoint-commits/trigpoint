@@ -77,8 +77,13 @@ def _load(blob):
     return turns
 
 
-def analyze(blob):
+def analyze(blob, require_tools=False):
     turns = _load(blob)
+    # opt-in: in require_tools mode, only evaluate sessions that actually have a tool/execution channel.
+    # This suppresses free-prose / tool-less-chat false positives. OFF by default on purpose — an agent that
+    # claims "tests pass" with ZERO tool turns in the whole session is the starkest false green and must still fire.
+    if require_tools and not any(t["is_exec"] for t in turns):
+        return {"turns": len(turns), "findings": [], "false_green": False, "require_tools_suppressed": True}
     findings = []
     for t in turns:
         role = t["role"]
@@ -108,10 +113,14 @@ def analyze(blob):
 
 def main(argv):
     as_json = False
-    if argv and argv[0] == "--json":
-        as_json = True; argv = argv[1:]
+    require_tools = False
+    while argv and argv[0].startswith("--"):
+        if argv[0] == "--json": as_json = True
+        elif argv[0] == "--require-tools": require_tools = True
+        else: break
+        argv = argv[1:]
     blob = open(argv[0]).read() if argv else sys.stdin.read()
-    r = analyze(blob)
+    r = analyze(blob, require_tools=require_tools)
     if as_json:
         print(json.dumps(r, indent=2)); return 1 if r["false_green"] else 0
     if not r["findings"]:

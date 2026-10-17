@@ -25,6 +25,7 @@ chat) it will false-positive on narrative uses of trigger words — we measured 
 python3 falsegreen.py agent-session.jsonl      # exit 1 if any unbacked success claim
 cat session.jsonl | python3 falsegreen.py       # stdin
 python3 falsegreen.py --json session.jsonl       # machine-readable findings
+python3 falsegreen.py --require-tools session.jsonl  # only fire in sessions that HAVE a tool channel (kills free-prose FPs; off by default)
 ```
 Exit code is the gate: `0` = clean, `1` = false green found. Drop it in a pre-merge step / GitHub Action so a PR
 whose agent transcript claims a success it never ran gets blocked.
@@ -39,5 +40,8 @@ tool_use/tool_calls field, or command-output in the text), or plain text (coarse
   verifiable at trigpoint-commits.github.io/trigpoint/verify.html — an attestation you can show a user or sponsor.
 
 ## Status
-v1 detector + fixtures + selftest (ALL GREEN). Next: ship as a GitHub Action + publish a real catch on an external
-transcript (the one external proof the bench says we need before chasing sponsors).
+Detector + fixtures + selftest (ALL GREEN) + GitHub Action + a 13-case benchmark. **Field study ([`benchmark/FIELD-STUDY.md`](benchmark/FIELD-STUDY.md)):**
+ran it over ~800 real public agent transcripts across 6 datasets — **0 false positives across 500 tool-grounded agent
+transcripts** (incl. 228 real backed success claims), 4 FPs confined to tool-less free-prose chat (fixed via
+`--require-tools`), and **no genuine wild catch yet** (success/tool-grounded corpora contain none by construction).
+The honest ask stands: send a failure-weighted / non-tool-enforced transcript where it should fire.
