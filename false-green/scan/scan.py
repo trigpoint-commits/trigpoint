@@ -94,13 +94,29 @@ def _has_assertion(node):
     return False
 
 def _swallows(node):
+    """True only for a CATCH-ALL try/except wrapping the whole test whose handler neither re-raises, asserts, skips,
+    nor fails — i.e. genuinely hides failures. A handler that catches a SPECIFIC exception, or that skips / re-raises
+    / fails, is legitimate and is NOT flagged (that was a false-positive source — e.g. `except FooError: pytest.skip`)."""
     body = _body_sans_doc(node)
-    if len(body) == 1 and isinstance(body[0], ast.Try):
-        tr = body[0]
-        for h in tr.handlers:
-            # except [Exception]: pass/...  with no re-raise and no assertion in handler
-            if _is_empty(h.body) or all(not isinstance(s, (ast.Raise, ast.Assert)) for s in h.body):
-                return True
+    if len(body) != 1 or not isinstance(body[0], ast.Try):
+        return False
+    for h in body[0].handlers:
+        et = h.type
+        catchall = (et is None
+                    or (isinstance(et, ast.Name) and et.id in ("Exception", "BaseException"))
+                    or (isinstance(et, ast.Tuple) and any(isinstance(x, ast.Name) and x.id in ("Exception", "BaseException") for x in et.elts)))
+        if not catchall:
+            continue
+        handled = False
+        for s in ast.walk(h):
+            if isinstance(s, (ast.Raise, ast.Assert)):
+                handled = True; break
+            if isinstance(s, ast.Call):
+                fn = s.func.attr if isinstance(s.func, ast.Attribute) else getattr(s.func, "id", "")
+                if fn in ("skip", "skipTest", "fail", "xfail"):
+                    handled = True; break
+        if not handled:
+            return True
     return False
 
 def scan_file(path):
