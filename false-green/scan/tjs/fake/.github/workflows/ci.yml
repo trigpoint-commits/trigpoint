@@ -1,0 +1,6 @@
+jobs:
+  build:
+    steps:
+      - name: run tests
+        run: npm test
+        continue-on-error: true

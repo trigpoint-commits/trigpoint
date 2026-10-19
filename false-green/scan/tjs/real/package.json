@@ -1,0 +1,1 @@
+{ "name":"real-app", "scripts": { "test": "vitest run" } }
