@@ -73,7 +73,10 @@ def scan_workflow(path):
     return out
 
 # ---- JS/TS test-file patterns ----
-ONLY_RE = re.compile(r"\b(it|test|describe)\.only\s*\(|\b(fit|fdescribe)\s*\(")
+# .only is unambiguous. Bare fit()/fdescribe() (Jasmine focus) collide with ordinary functions named `fit`
+# (curve-fit / fit-to-screen) — a real focused test takes a DESCRIPTION STRING first arg: fit("desc", fn).
+# Require that string literal so `fit(phone, ...)` (a function under test) is not a false positive.
+ONLY_RE = re.compile(r"\b(it|test|describe)\.only\s*\(|\b(fit|fdescribe)\s*\(\s*['\"`]")
 SKIP_RE = re.compile(r"\b(it|test|describe)\.(skip|todo)\s*\(|\b(xit|xdescribe|xtest)\s*\(")
 TAUTO_RE = re.compile(r"expect\s*\(\s*(true|1|!0|'.'|\"\w\")\s*\)\s*\.\s*(toBe\s*\(\s*(true|1)\s*\)|toBeTruthy\s*\(\s*\))"
                       r"|expect\s*\(\s*(false|0)\s*\)\s*\.\s*toBeFalsy\s*\(\s*\)")
